@@ -1,2 +1,314 @@
-# Vulnly
-Generate self-contained HTML vulnerability reports from Cloudsmith, Trivy, and Grype scan output
+<img src="/assets/vulnly-logo.png">
+
+A simple Python utility that generates beautiful, self-contained HTML reports from various vulnerability scan sources.
+
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)
+
+## Installation
+
+Install from PyPI:
+
+```bash
+pip install vulnly
+```
+
+This makes the `vulnly` command available globally.
+
+## Features
+
+- Generates polished, self-contained HTML reports from JSON input
+- Supports multiple scanner sources: **Cloudsmith**, **Trivy**, and **Grype** (auto-detected or via `--source` flag)
+- **Repository summary reports** — automatically detects Cloudsmith repo-level summaries and generates a dedicated overview report with package status breakdown, aggregate vulnerability counts, and per-package detail table
+- Dark and light colour themes via `--theme` flag
+- Interactive doughnut charts showing severity or status distribution (powered by Chart.js)
+- Severity stat cards (Total, Critical, High, Medium, Low)
+- Auto-generated executive summary and action-required alert box
+- Client-side search and filter buttons for the CVE / package table
+- Automatic linking for CVE IDs (NVD) and GHSA IDs (GitHub Advisories)
+- Customisable logo — supply via `--logo` flag or drop an image into `assets/`
+- Accepts input from a file or stdin (`-`), making it easy to pipe from other tools
+- Input validation with helpful warnings for malformed data
+- Zero external dependencies — uses only the Python standard library
+
+## Quick Start
+
+```bash
+vulnly sample_data.json
+```
+
+This reads `sample_data.json` and writes the report to `reports/` (the default output directory).
+
+### Specify the scanner source
+
+The tool auto-detects the input format, but you can be explicit:
+
+```bash
+vulnly scan.json --source trivy
+vulnly scan.json --source grype
+vulnly scan.json --source cloudsmith
+```
+
+If `--source` is specified and the input doesn't match the expected format, the tool exits with a clear error message.
+
+### Repository summary reports
+
+Cloudsmith repo-level summary JSON is automatically detected and generates a dedicated repository overview report:
+
+```bash
+vulnly repo_summary.json
+```
+
+The output includes package status cards (vulnerable / no issues / not scanned), aggregate vulnerability severity breakdown, a status distribution chart, and a searchable/filterable package table.
+
+### Specify a custom output path
+
+```bash
+vulnly sample_data.json -o my_report.html
+```
+
+### Custom logo
+
+Use the `--logo` flag to supply a custom logo image. It will be copied into an `assets/` subfolder next to the output file and referenced in the report header:
+
+```bash
+vulnly sample_data.json --logo my-company-logo.png
+```
+
+Alternatively, manually create an `assets/` folder next to the output file and place an image inside it (e.g. `assets/logo.png`). The generator will automatically detect and use the first image it finds (sorted alphabetically). Supported formats: `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.ico`.
+
+If no `--logo` is provided and no image is found in `assets/`, a default logo mark is used.
+
+### Theme
+
+Choose between a dark (default) or light colour theme:
+
+```bash
+vulnly sample_data.json --theme light
+vulnly sample_data.json --theme dark
+```
+
+### Read from stdin
+
+Pipe JSON directly from another command:
+
+```bash
+cat scan_output.json | vulnly -
+```
+
+<img src="/assets/report-demo.jpg">
+
+## Usage
+
+```
+usage: vulnly [-h] [-o OUTPUT]
+              [--logo LOGO] [--theme {dark,light}]
+              [--source SOURCE]
+              input
+
+Generate an HTML vulnerability report from a JSON input file.
+
+positional arguments:
+  input                 Path to the JSON file containing vulnerability data
+                        (use '-' for stdin)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Output HTML file path (default: auto-generated in
+                        reports/ subfolder)
+  --logo LOGO           Path to a custom logo image (copied to assets/ beside
+                        the output)
+  --theme {dark,light}  Report colour theme (default: dark)
+  --source SOURCE       Scanner source format: cloudsmith, trivy, grype
+                        (auto-detected if omitted)
+```
+
+## Input JSON Format
+
+The generator accepts **multiple input formats** — it auto-detects which one you provide, or you can specify explicitly with `--source`.
+
+### 1. Cloudsmith package format
+
+Pass raw JSON output from the Cloudsmith CLI. The tool extracts namespace, repository, package metadata, scan target, and all vulnerabilities automatically.
+
+The expected structure has a top-level `data` object containing `package`, `scans`, etc.:
+
+```json
+{
+    "data": {
+        "created_at": "2025-06-09T08:39:20.441354Z",
+        "identifier": "TZR5N4HaO7nTclhz",
+        "package": {
+            "name": "log4j",
+            "url": "https://example.com/packages/my-org/java/wAoMy00juV6N/",
+            "version": "28a05d8e..."
+        },
+        "scans": [
+            {
+                "target": "Java",
+                "type": "jar",
+                "results": [
+                    {
+                        "vulnerability_id": "CVE-2021-45046",
+                        "severity": "Critical",
+                        "title": "DoS in log4j 2.x...",
+                        "package_name": "org.apache.logging.log4j:log4j-core",
+                        "affected_version": { "version": "2.8.1" },
+                        "fixed_version": { "version": "2.16.0, 2.12.2" },
+                        "cvss_scores": null
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+
+### 2. Cloudsmith repository summary format
+
+Pass the repo-level summary JSON from Cloudsmith. This is auto-detected and produces a repository overview report instead of a per-package vulnerability report:
+
+```json
+{
+    "data": {
+        "owner": "my-org",
+        "packages": [
+            {
+                "package": "cloudsmith.io/jdk:9ea72e62...",
+                "slug_perm": "XXVmdsZn7OEh",
+                "status": "vulnerable",
+                "vulnerabilities": {
+                    "critical": 0,
+                    "high": 0,
+                    "low": 1,
+                    "medium": 2,
+                    "unknown": 0
+                }
+            },
+            {
+                "package": "cloudsmith.io/jdk:5659dd01...",
+                "slug_perm": "Ft30zuSymLol",
+                "status": "no_issues_found",
+                "vulnerabilities": {
+                    "critical": 0,
+                    "high": 0,
+                    "low": 0,
+                    "medium": 0,
+                    "unknown": 0
+                }
+            }
+        ],
+        "repository": "chainguard"
+    }
+}
+```
+
+The report includes status cards (vulnerable, no issues, not scanned), aggregate severity totals, a doughnut chart of package status, and a filterable package table.
+
+Package status values: `vulnerable`, `no_issues_found`, `no_scan`.
+
+### 3. Trivy format
+
+Pass Trivy's JSON output (`trivy image -f json`). The tool maps `ArtifactName`, `Results[].Vulnerabilities[]`, CVSS scores, and fix versions:
+
+```bash
+trivy image -f json nginx:latest > trivy-output.json
+vulnly trivy-output.json
+```
+
+### 4. Grype format
+
+Pass Grype's JSON output (`grype -o json`). The tool maps `matches[]`, artifact metadata, CVSS scores, and fix versions:
+
+```bash
+grype nginx:latest -o json > grype-output.json
+vulnly grype-output.json
+```
+
+### 5. Simplified format
+
+A flat JSON structure is also supported for custom integrations:
+
+```json
+{
+    "scan_date": "2026-03-13",
+    "repository": "my-org/production-repo",
+    "package_name": "my-application",
+    "package_version": "1.4.2",
+    "package_format": "Docker",
+    "scan_target": "debian 9.4",
+    "package_size": "~77.4 MB",
+    "scan_id": "TZR5N4HaO7nTclhz",
+    "vulnerabilities": [
+        {
+            "severity": "critical",
+            "identifier": "CVE-2026-1234",
+            "package": "openssl",
+            "affected_version": "1.1.1t",
+            "fixed_version": "1.1.1u",
+            "title": "Heap buffer overflow in OpenSSL",
+            "cvss": 9.8
+        }
+    ]
+}
+```
+
+#### Top-level fields
+
+| Field | Required | Description |
+|---|---|---|
+| `scan_date` | Yes | Date the scan was performed (`YYYY-MM-DD`) |
+| `repository` | Yes | Namespace/repository path (e.g. `my-org/production-repo`) |
+| `package_name` | Yes | Name of the scanned package |
+| `package_version` | Yes | Version of the scanned package |
+| `package_format` | No | Package format (e.g. `Docker`, `Maven`). Defaults to `Unknown` |
+| `scan_target` | No | Scan target OS/platform (e.g. `debian 9.4`). Defaults to `Unknown` |
+| `package_size` | No | Human-readable package size (e.g. `~77.4 MB`). Defaults to `Unknown` |
+| `scan_id` | No | Unique scan identifier. Defaults to `N/A` |
+| `vulnerabilities` | Yes | Array of vulnerability objects |
+
+#### Vulnerability object fields
+
+| Field | Required | Description |
+|---|---|---|
+| `severity` | Yes | One of `critical`, `high`, `medium`, `low` (case-insensitive) |
+| `identifier` | Yes | CVE ID or other identifier (e.g. `GHSA-...`). CVE IDs are auto-linked to NVD; GHSA IDs are linked to GitHub Advisories |
+| `package` | Yes | Name of the affected dependency |
+| `affected_version` | No | The vulnerable version |
+| `fixed_version` | No | The version containing the fix, or `"N/A"` / omit if no fix is available |
+| `title` | No | Short description of the vulnerability. Auto-generated if omitted |
+| `cvss` | No | CVSS v3 score as a number (e.g. `9.8`). Displayed as `N/A` if omitted |
+
+## Requirements
+
+- Python 3.8+
+- No third-party packages required
+
+You can also run without installing via:
+
+```bash
+python -m vulnly scan.json
+```
+
+## Terminal Output
+
+The script prints a severity breakdown after generating the report:
+
+```
+Report generated: reports/nginx_nginx_c755eb98e755_grype_vulnerability_report.html (162 vulnerabilities)
+  HIGH: 13  MEDIUM: 29  LOW: 7
+```
+
+For repository summary reports:
+
+```
+Repo summary generated: reports/my-org_chainguard_cloudsmith_repo_summary_report.html (36 packages, 6 vulnerabilities)
+  VULNERABLE: 2  NO ISSUES: 22  NOT SCANNED: 12
+```
+
+When no `-o` is specified, reports are saved to the `reports/` subfolder. This directory is git-ignored by default.
+
+## License
+
+This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
