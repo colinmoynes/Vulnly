@@ -69,15 +69,24 @@ vulnly sample_data.json -o my_report.html
 
 ### Custom logo
 
-Use the `--logo` flag to supply a custom logo image. It will be copied into an `assets/` subfolder next to the output file and referenced in the report header:
+Use the `--logo` flag to supply a custom logo image. It will be embedded directly in the HTML report header as a base64 data URI:
 
 ```bash
 vulnly sample_data.json --logo my-company-logo.png
 ```
 
-Alternatively, manually create an `assets/` folder next to the output file and place an image inside it (e.g. `assets/logo.png`). The generator will automatically detect and use the first image it finds (sorted alphabetically). Supported formats: `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.ico`.
+**Logo requirements:**
 
-If no `--logo` is provided and no image is found in `assets/`, a default logo mark is used.
+| Constraint | Limit |
+|---|---|
+| Max file size | 2 MB |
+| Max dimensions | 512 × 512 px |
+| Recommended size | 128 × 128 px to 256 × 256 px |
+| Supported formats | `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.ico` |
+
+If a custom logo exceeds the file size or dimension limits, a warning is printed and the default Vulnly logo is used instead.
+
+If no `--logo` is provided, the built-in Vulnly logo is used.
 
 ### Theme
 
@@ -117,8 +126,8 @@ optional arguments:
   -o OUTPUT, --output OUTPUT
                         Output HTML file path (default: auto-generated in
                         reports/ subfolder)
-  --logo LOGO           Path to a custom logo image (copied to assets/ beside
-                        the output)
+  --logo LOGO           Path to a custom logo image (max 512×512px, 2 MB;
+                        embedded as base64 in the report)
   --theme {dark,light}  Report colour theme (default: dark)
   --source SOURCE       Scanner source format: cloudsmith, trivy, grype
                         (auto-detected if omitted)
