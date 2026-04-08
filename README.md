@@ -1,19 +1,17 @@
 <img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/vulnly-logo.png">
 
-A simple Python utility that generates beautiful, self-contained HTML reports from various vulnerability scan sources.
+Generate self-contained HTML vulnerability reports from Cloudsmith, Trivy, and Grype. 
 
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)
 
 ## Installation
 
-Install from PyPI:
+Install from PyPI (Currently in beta):
 
 ```bash
 pip install vulnly
 ```
-
-This makes the `vulnly` command available globally.
 
 ## Features
 
