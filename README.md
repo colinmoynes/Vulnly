@@ -105,6 +105,30 @@ Pipe JSON directly from another command:
 cat scan_output.json | vulnly -
 ```
 
+#### Cloudsmith CLI
+
+Pipe vulnerability scan results directly from the Cloudsmith CLI:
+
+```bash
+cloudsmith vulnerabilities WORKSPACE/REPO/PACKAGE_IDENTIFIER --output-format json | vulnly -
+```
+
+#### Trivy
+
+Scan an image with Trivy and pipe directly to Vulnly:
+
+```bash
+trivy image -f json nginx:latest | vulnly --source trivy -
+```
+
+#### Grype
+
+Scan an image with Grype and pipe directly to Vulnly:
+
+```bash
+grype nginx:latest -o json | vulnly --source grype -
+```
+
 <img src="/assets/report-demo.jpg">
 
 ## Usage
