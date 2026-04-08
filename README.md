@@ -1,4 +1,4 @@
-<img src="/assets/vulnly-logo.png">
+<img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/vulnly-logo.png">
 
 A simple Python utility that generates beautiful, self-contained HTML reports from various vulnerability scan sources.
 
@@ -129,7 +129,7 @@ Scan an image with Grype and pipe directly to Vulnly:
 grype nginx:latest -o json | vulnly --source grype -
 ```
 
-<img src="/assets/report-demo.jpg">
+<img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/report-demo.jpg">
 
 ## Usage
 
