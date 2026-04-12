@@ -331,14 +331,7 @@ A flat JSON structure is also supported for custom integrations:
 
 ## Requirements
 
-- Python 3.8+
-- No third-party packages required
-
-You can also run without installing via:
-
-```bash
-python -m vulnly scan.json
-```
+- Python 3.10+
 
 ## Terminal Output
 
