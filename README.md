@@ -16,7 +16,7 @@ pip install vulnly
 ## Features
 
 - Generates polished, self-contained HTML reports from JSON input
-- Supports multiple scanner sources: **Cloudsmith**, **Trivy**, and **Grype** (auto-detected or via `--source` flag)
+- Supports multiple scanner sources: **Cloudsmith**, **Trivy**, **Grype**, and **Snyk** (auto-detected or via `--source` flag)
 - **Repository summary reports** — automatically detects Cloudsmith repo-level summaries and generates a dedicated overview report with package status breakdown, aggregate vulnerability counts, and per-package detail table
 - Dark and light colour themes via `--theme` flag
 - Interactive doughnut charts showing severity or status distribution (powered by Chart.js)
@@ -44,6 +44,7 @@ The tool auto-detects the input format, but you can be explicit:
 ```bash
 vulnly scan.json --source trivy
 vulnly scan.json --source grype
+vulnly scan.json --source snyk
 vulnly scan.json --source cloudsmith
 ```
 
@@ -127,6 +128,14 @@ Scan an image with Grype and pipe directly to Vulnly:
 grype nginx:latest -o json | vulnly --source grype -
 ```
 
+#### Snyk
+
+Test a container image with Snyk and pipe directly to Vulnly:
+
+```bash
+snyk container test nginx:latest --json | vulnly --source snyk -
+```
+
 <img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/report-demo.jpg">
 
 ## Usage
@@ -151,7 +160,7 @@ optional arguments:
   --logo LOGO           Path to a custom logo image (max 512×512px, 2 MB;
                         embedded as base64 in the report)
   --theme {dark,light}  Report colour theme (default: dark)
-  --source SOURCE       Scanner source format: cloudsmith, trivy, grype
+  --source SOURCE       Scanner source format: cloudsmith, trivy, grype, snyk
                         (auto-detected if omitted)
 ```
 
@@ -257,7 +266,16 @@ grype nginx:latest -o json > grype-output.json
 vulnly grype-output.json
 ```
 
-### 5. Simplified format
+### 5. Snyk format
+
+Pass Snyk's JSON output (`snyk container test --json`). The tool maps `vulnerabilities[]`, CVSS scores, CVE identifiers, and fix versions. Duplicate vulnerability paths are automatically deduplicated:
+
+```bash
+snyk container test nginx:latest --json > snyk-output.json
+vulnly snyk-output.json
+```
+
+### 6. Simplified format
 
 A flat JSON structure is also supported for custom integrations:
 
