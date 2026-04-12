@@ -342,13 +342,6 @@ Report generated: reports/nginx_nginx_c755eb98e755_grype_vulnerability_report.ht
   HIGH: 13  MEDIUM: 29  LOW: 7
 ```
 
-For repository summary reports:
-
-```
-Repo summary generated: reports/my-org_chainguard_cloudsmith_repo_summary_report.html (36 packages, 6 vulnerabilities)
-  VULNERABLE: 2  NO ISSUES: 22  NOT SCANNED: 12
-```
-
 When no `-o` is specified, reports are saved to the `reports/` subfolder. This directory is git-ignored by default.
 
 ## License
