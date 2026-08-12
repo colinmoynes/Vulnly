@@ -1,7 +1,4 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/icons/vulnly-wordmark-dark.png">
-  <img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/icons/vulnly-wordmark.png" alt="Vulnly" width="320">
-</picture>
+<img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/icons/vulnly-readme-banner.png" alt="Vulnly" width="800">
 
 Generate self-contained HTML vulnerability reports from Cloudsmith, Trivy, Grype and Snyk.
 Every report is a single file that opens with no network access.
