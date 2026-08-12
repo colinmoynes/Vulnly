@@ -1,6 +1,7 @@
 <img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/vulnly-logo.png">
 
-Generate self-contained HTML vulnerability reports from Cloudsmith, Trivy, and Grype. 
+Generate self-contained HTML vulnerability reports from Cloudsmith, Trivy, Grype and Snyk.
+Every report is a single file that opens with no network access.
 
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
@@ -15,14 +16,14 @@ pip install vulnly
 
 ## Features
 
-- Generates polished, self-contained HTML reports from JSON input
+- **Fully offline reports** — a single HTML file with fonts, charting library and logo embedded. No CDN, no web fonts, no outbound requests when opened, so reports work on airgapped hosts and keep working once archived
 - Supports multiple scanner sources: **Cloudsmith**, **Trivy**, **Grype**, and **Snyk** (auto-detected or via `--source` flag)
 - **Repository summary reports** — automatically detects Cloudsmith repo-level summaries and generates a dedicated overview report with package status breakdown, aggregate vulnerability counts, and per-package detail table
 - Dark and light colour themes via `--theme` flag, plus an in-report toggle so readers can switch without regenerating
-- Interactive doughnut charts showing severity or status distribution (powered by Chart.js)
-- Severity stat cards (Total, Critical, High, Medium, Low)
+- Interactive doughnut charts showing severity or status distribution (Chart.js, bundled)
+- Severity stat cards (Total, Critical, High, Medium, Low, Unknown)
 - Auto-generated executive summary and action-required alert box
-- Client-side search and filter buttons for the CVE / package table
+- Client-side search and severity filters, with the table paginated so large reports open quickly
 - Automatic linking for CVE IDs (NVD) and GHSA IDs (GitHub Advisories)
 - Customisable logo — supply via `--logo` flag or drop an image into `assets/`
 - Accepts input from a file or stdin (`-`), making it easy to pipe from other tools
@@ -176,6 +177,27 @@ optional arguments:
 
 The version check is skipped automatically when stderr is not a terminal, so
 it makes no network request in CI or when output is piped.
+
+## Offline reports
+
+A generated report is a single HTML file that makes **no network requests when
+opened**. Everything it needs is embedded:
+
+| Asset | Source | Licence |
+| --- | --- | --- |
+| Charting | Chart.js 4.4.0, bundled and inlined | MIT |
+| Typography | Inter, variable font covering weights 400–800 | SIL OFL 1.1 |
+| Logo | Embedded as a data URI | — |
+
+This means reports render identically on airgapped hosts and in restricted
+browser environments, and keep rendering years later when a CDN URL would have
+moved. It also means opening a report tells no third party that you did.
+
+CVE and GHSA identifiers still link out to NVD and GitHub Advisories, but those
+are ordinary links — nothing is fetched unless the reader clicks one.
+
+The generator itself contacts the network only for its PyPI version check,
+which can be disabled with `VULNLY_NO_UPDATE_CHECK` as described above.
 
 ## Input JSON Format
 
