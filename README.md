@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/colinmoynes/vulnly-core/main/assets/icons/vulnly-wordmark-dark.png">
-  <img src="https://raw.githubusercontent.com/colinmoynes/vulnly-core/main/assets/icons/vulnly-wordmark.png" alt="Vulnly" width="320">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/icons/vulnly-wordmark-dark.png">
+  <img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/icons/vulnly-wordmark.png" alt="Vulnly" width="320">
 </picture>
 
 Generate self-contained HTML vulnerability reports from Cloudsmith, Trivy, Grype and Snyk.
