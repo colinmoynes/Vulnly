@@ -18,7 +18,7 @@ pip install vulnly
 - Generates polished, self-contained HTML reports from JSON input
 - Supports multiple scanner sources: **Cloudsmith**, **Trivy**, **Grype**, and **Snyk** (auto-detected or via `--source` flag)
 - **Repository summary reports** — automatically detects Cloudsmith repo-level summaries and generates a dedicated overview report with package status breakdown, aggregate vulnerability counts, and per-package detail table
-- Dark and light colour themes via `--theme` flag
+- Dark and light colour themes via `--theme` flag, plus an in-report toggle so readers can switch without regenerating
 - Interactive doughnut charts showing severity or status distribution (powered by Chart.js)
 - Severity stat cards (Total, Critical, High, Medium, Low)
 - Auto-generated executive summary and action-required alert box
@@ -89,12 +89,16 @@ If no `--logo` is provided, the built-in Vulnly logo is used.
 
 ### Theme
 
-Choose between a dark (default) or light colour theme:
+Choose the theme the report opens in — dark is the default:
 
 ```bash
 vulnly sample_data.json --theme light
 vulnly sample_data.json --theme dark
 ```
+
+Every report also carries both palettes, so readers can switch with the
+toggle in the report header regardless of which theme it was generated in.
+Their choice is remembered per browser.
 
 ### Read from stdin
 
@@ -163,6 +167,15 @@ optional arguments:
   --source SOURCE       Scanner source format: cloudsmith, trivy, grype, snyk
                         (auto-detected if omitted)
 ```
+
+### Environment variables
+
+| Variable | Effect |
+| --- | --- |
+| `VULNLY_NO_UPDATE_CHECK` | Set to any value to skip the PyPI version check. |
+
+The version check is skipped automatically when stderr is not a terminal, so
+it makes no network request in CI or when output is piped.
 
 ## Input JSON Format
 
