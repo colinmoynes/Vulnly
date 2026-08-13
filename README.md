@@ -21,11 +21,13 @@ pip install vulnly
 - **Repository summary reports** — automatically detects Cloudsmith repo-level summaries and generates a dedicated overview report with package status breakdown, aggregate vulnerability counts, and per-package detail table
 - Dark and light colour themes via `--theme` flag, plus an in-report toggle so readers can switch without regenerating
 - Interactive doughnut charts showing severity or status distribution (Chart.js, bundled)
-- Severity stat cards (Total, Critical, High, Medium, Low, Unknown)
-- Auto-generated executive summary and action-required alert box
-- Client-side search and severity filters, with the table paginated so large reports open quickly
+- Severity stat cards (Total, Critical, High, Medium, Low, Unknown) and a count of findings that have a fix available
+- **Top affected packages** — a ranked breakdown showing where findings are concentrated, since one bad dependency usually dominates a scan
+- Auto-generated executive summary, with an alert that distinguishes urgent findings from routine ones and from a clean scan
+- Client-side search, severity filters and a fixable-only toggle, with sortable columns and pagination so large reports stay usable
+- **CSV export** of the current filtered view, safe to open in a spreadsheet
 - Automatic linking for CVE IDs (NVD) and GHSA IDs (GitHub Advisories)
-- Customisable logo — supply via `--logo` flag or drop an image into `assets/`
+- Customisable logo — supply via `--logo`, embedded in the report as a data URI
 - Accepts input from a file or stdin (`-`), making it easy to pipe from other tools
 - Input validation with helpful warnings for malformed data
 - Zero external dependencies — uses only the Python standard library
@@ -141,32 +143,41 @@ Test a container image with Snyk and pipe directly to Vulnly:
 snyk container test nginx:latest --json | vulnly --source snyk -
 ```
 
-<img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/report-demo.jpg">
+## Example report
+
+The scan summary — severity and fixable counts, the distribution chart, and an
+executive summary whose alert reflects whether anything is actually urgent:
+
+<img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/readme/example.jpg" alt="Vulnly report summary: stat cards, severity distribution chart and executive summary">
+
+Further down, the findings themselves — where they are concentrated, then a
+sortable table with search, severity and fixable filters, and CSV export:
+
+<img src="https://raw.githubusercontent.com/colinmoynes/vulnly/main/assets/readme/example2.jpg" alt="Vulnly findings: top affected packages breakdown and the filterable vulnerability table">
 
 ## Usage
 
 ```
-usage: vulnly [-h] [-o OUTPUT]
-              [--logo LOGO] [--theme {dark,light}]
-              [--source SOURCE]
+usage: vulnly [-h] [-v] [-o OUTPUT] [--logo LOGO]
+              [--theme {dark,light}] [--source SOURCE]
               input
 
 Generate an HTML vulnerability report from a JSON input file.
 
 positional arguments:
-  input                 Path to the JSON file containing vulnerability data
-                        (use '-' for stdin)
+  input                 Path to the JSON file containing vulnerability
+                        data (use '-' for stdin)
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  -o OUTPUT, --output OUTPUT
-                        Output HTML file path (default: auto-generated in
-                        reports/ subfolder)
-  --logo LOGO           Path to a custom logo image (max 512×512px, 2 MB;
-                        embedded as base64 in the report)
+  -v, --version         show program's version number and exit
+  -o, --output OUTPUT   Output HTML file path (default: auto-generated
+                        from package metadata)
+  --logo LOGO           Path to a custom logo image (embedded in the
+                        report as a data URI)
   --theme {dark,light}  Report colour theme (default: dark)
-  --source SOURCE       Scanner source format: cloudsmith, trivy, grype, snyk
-                        (auto-detected if omitted)
+  --source SOURCE       Scanner source format: cloudsmith, grype, snyk,
+                        trivy (auto-detected if omitted)
 ```
 
 ### Environment variables
@@ -373,11 +384,27 @@ A flat JSON structure is also supported for custom integrations:
 The script prints a severity breakdown after generating the report:
 
 ```
-Report generated: reports/nginx_nginx_c755eb98e755_grype_vulnerability_report.html (162 vulnerabilities)
-  HIGH: 13  MEDIUM: 29  LOW: 7
+Report generated: reports/nginx_latest_nginx_latest_a72860cb95fd_grype_vulnerability_report.html (3 vulnerabilities)
+  CRITICAL: 1  MEDIUM: 1  LOW: 1
+```
+
+A clean scan says so explicitly:
+
+```
+Report generated: reports/chainguard_nginx_latest_..._trivy_vulnerability_report.html (0 vulnerabilities)
+  No vulnerabilities found.
 ```
 
 When no `-o` is specified, reports are saved to the `reports/` subfolder. This directory is git-ignored by default.
+
+## Security
+
+Vulnly treats scanner output as untrusted: advisory titles and package names
+come from vulnerability feeds, and reports are shared and archived. Generated
+reports load nothing from the network, scanner text is never rendered as
+markup, and CSV exports are inert in a spreadsheet.
+
+To report a vulnerability in Vulnly itself, see [SECURITY.md](SECURITY.md).
 
 ## License
 
