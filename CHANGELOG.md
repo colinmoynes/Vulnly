@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] - 2026-08-13
+
+First stable release.
+
+### Added
+- Sortable table columns, with keyboard support. Sorting applies to the whole result set rather than the page currently loaded, so sorting by CVSS with 50 of 500 rows shown surfaces the true highest scores. Reports open worst-first, and rows equal on the sorted column fall back to worst-first so sorting by package still lists the most urgent finding in each group.
+- A **Fixable** count of findings that have a fix available, and a **Fixable only** filter that combines with the severity filters and search.
+- A **Top Affected Packages** breakdown showing where findings are concentrated.
+- **CSV export** of the current filtered and sorted view, covering every matching row rather than only those on screen. Fields that a spreadsheet would otherwise execute as a formula are escaped so they are read as text.
+- Reports now carry a browser tab icon.
+- A published [security policy](SECURITY.md) for reporting vulnerabilities in Vulnly itself.
+- A `py.typed` marker, so type checkers see the package's annotations. The `Typing :: Typed` classifier was previously declared without one.
+
+### Changed
+- **Reports are fully offline.** The charting library and font are bundled and the logo embedded, so a generated report makes no network requests at all. It renders identically on an airgapped host and years later, when a hosted URL would have moved, and opening one no longer tells a third party that you did.
+- **Reports are 23× smaller** — roughly 389 KB rather than 8.8 MB for a 182-finding scan. The previous logo was a 2.18 MB image displayed at 48 pixels and embedded three times.
+- **New look.** Rebranded logo and a cyan-on-slate theme across light and dark. Every text colour now meets WCAG AA on both; three did not previously, one of them below the threshold even for large text.
+- **Clearer report headings.** The same fact appeared as many as four times in the header of a report. Each now appears once, and the wording no longer assumes container images — findings are described by affected package, which holds for Maven, npm and other formats.
+- Marked as production/stable.
+
+### Fixed
+- The update check reported an update whenever the local and published versions merely differed, so a build ahead of the published one advised "upgrading" to an older release. It now compares versions properly, can be disabled with `VULNLY_NO_UPDATE_CHECK`, and makes no network request when output is not attached to a terminal, so it is silent in CI.
+- `--logo` described behaviour that no longer existed, and `--source` listed three of the four supported scanners.
+
+### Removed
+- The `output_path` argument to `_resolve_logo_html()` and `_resolve_footer_logo_html()`, left over from when logos were written beside the report rather than embedded. Only affects code calling those helpers directly; the command-line interface is unchanged.
+
 ## [1.0.0b9] - 2026-08-12
 
 ### Security
